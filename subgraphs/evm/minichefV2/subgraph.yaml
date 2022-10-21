@@ -1,0 +1,92 @@
+specVersion: 0.0.2
+description: Pangolin is a decentralized exchange for swapping Ethereum and Avalanche assets on Avalanche.
+repository: https://github.com/pangolindex/subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Factory
+    network: dijets
+    source:
+      address: "0xfA92F47c1C9741db2fEC38121BF647a689E20381"
+      abi: Factory
+      startBlock: 2012
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./mappings/factory.ts
+      entities:
+        - Pair
+        - Token
+      abis:
+        - name: Factory
+          file: ../../abis/factory.json
+        - name: ERC20
+          file: ../../abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ../../abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ../../abis/ERC20NameBytes.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handleNewPair
+  - kind: ethereum/contract
+    name: MiniChefV2
+    network: dijets
+    source:
+      address: "0x2017375d8AFeD6673b31C12c6C9F09691db35E25"
+      abi: MiniChefV2
+      startBlock: 2014
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./mappings/miniChefV2.ts
+      entities:
+        - Farm
+        - Reward
+      abis:
+        - name: MiniChefV2
+          file: ../../abis/MiniChefV2.json
+        - name: RewarderViaMultiplier
+          file: ../../abis/RewarderViaMultiplier.json
+      eventHandlers:
+        - event: PoolAdded(indexed uint256,uint256,indexed address,indexed address)
+          handler: handlePoolAdded
+        - event: Deposit(indexed address,indexed uint256,uint256,indexed address)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,indexed uint256,uint256,indexed address)
+          handler: handleWithdraw
+        - event: EmergencyWithdraw(indexed address,indexed uint256,uint256,indexed address)
+          handler: handleEmergencyWithdraw
+        - event: PoolSet(indexed uint256,uint256,indexed address,bool)
+          handler: handlePoolSet
+        - event: LogRewardPerSecond(uint256)
+          handler: handleLogRewardPerSecond
+        - event: LogRewardsExpiration(uint256)
+          handler: handleLogRewardsExpiration
+templates:
+  - kind: ethereum/contract
+    name: Pair
+    network: dijets
+    source:
+      abi: Pair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./mappings/core.ts
+      entities:
+        - Pair
+        - Token
+      abis:
+        - name: Pair
+          file: ../../abis/pair.json
+        - name: Factory
+          file: ../../abis/factory.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Sync(uint112,uint112)
+          handler: handleSync

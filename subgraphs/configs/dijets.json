@@ -1,0 +1,12 @@
+{
+  "key": "dijets",
+  "name": "dijets",
+  "vmType": "evm",
+  "subgraphs": ["exchange","governance","minichef"],
+  "contracts": {
+    "governance" : {
+      "address": "0x2307Efa288fe1C129aaDB1d32220DE8A7159301A",
+      "startBlock": "2078"
+    }
+  }
+}
